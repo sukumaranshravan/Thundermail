@@ -1,0 +1,39 @@
+body {
+    background-color:rgb(92, 168, 244);
+    background-image: url(/media/mail_bg.jpg);
+    opacity: 100%;
+      }
+      #navbar {
+    background-color:transparent;
+    padding-left: 15px;
+    padding-right: 20px;
+    color: white;
+    }
+    #left-sidebar{
+      background-color: transparent;
+    }
+    #compose{
+      background-color: white;
+      font-size: large;
+      font-weight: bold;
+      color: black;
+      width: 60%;
+    }
+    #content{
+      /* margin-top: 20px; */
+      background-color: whitesmoke;
+      opacity: 70%;
+      border-radius: 10px;
+      list-style-type: none;
+    }
+    .nav-link{
+      font-size: large;
+      font-weight:light;
+    }
+  #search{
+    margin-left: 100px;
+    margin-right: 80px;
+    width: 500px;
+    border-radius: 20px;
+    background-color: transparent;
+  }
