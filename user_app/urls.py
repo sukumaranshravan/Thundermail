@@ -14,5 +14,11 @@ urlpatterns = [
     path('read_message<int:id>/',views.read_message,name='read_message'),
     path('reply<int:id>/',views.reply,name='reply'),
     path('forward<int:id>/',views.forward,name='forward'),
-
+    path('important<int:id>/',views.important,name='important'),
+    path('view_important/',views.view_important,name='view_important'),
+    path('spam<int:id>/',views.spam,name='spam'),
+    path('view_spam/',views.view_spam,name='view_spam'),
+    path('trash<int:id>/',views.trash,name='trash'),
+    path('view_trash/',views.view_trash,name='view_trash'),
+    
 ]

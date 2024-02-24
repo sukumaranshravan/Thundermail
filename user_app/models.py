@@ -19,3 +19,7 @@ class Message_Tb(models.Model):
     time=models.CharField(max_length=20)
     status_reciever=models.CharField(max_length=20,default='unread')
     status_sender=models.CharField(max_length=20,default='none')
+
+class Block_Tb(models.Model):
+    user_id=models.ForeignKey(Register_Tb,on_delete=models.CASCADE)
+    blocked_id=models.CharField(max_length=20)

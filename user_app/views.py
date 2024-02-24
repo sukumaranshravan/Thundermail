@@ -28,17 +28,17 @@ def sign_in(request):
         request.session['yourself']=details[0].id
         my_name = details[0].name
         user_name = details[0].user_name
-        messages= Message_Tb.objects.filter(recipient_id=user_name)
+        messages= Message_Tb.objects.filter(recipient_id=user_name,status_reciever='unread') or Message_Tb.objects.filter(recipient_id=user_name,status_reciever='important')
         return render(request,'home.html',{'see':details,'key':my_name,'view':messages})
     else:
         messages.add_message(request,messages.INFO,"User Not Found!")
         return redirect('start_up')
     
-def home(request):
+def home(request):     # home function also takes care of  inbox.
     my_id=request.session['yourself']
     details = Register_Tb.objects.filter(id=my_id)
     user_name=details[0].user_name
-    messages= Message_Tb.objects.filter(recipient_id=user_name)
+    messages= Message_Tb.objects.filter(recipient_id=user_name,status_reciever='unread') or Message_Tb.objects.filter(recipient_id=user_name,status_reciever='important')
     my_name = details[0].name
     return render(request,'home.html',{'key':my_name,'see':details,'view':messages})
 
@@ -55,7 +55,7 @@ def compose(request):
 
 def compose_action(request):
     sender_id=request.session['yourself']
-    if len(request.POST['recipient'])>0:        # this condition is for reply, because when you click reply it automatically takes the whole user id from the database (coded like that.)
+    if '@thundermail.com' in request.POST['recipient']:        # this condition is for reply, because when you click reply it automatically takes the whole user id from the database (coded like that.)
         recipient_id=request.POST['recipient']   
     else:                                       # this is for compose, where user is only required  to fill the user id only.
         recipient_id=request.POST['recipient'] + "@thundermail.com"
@@ -97,3 +97,44 @@ def forward(request,id):
     my_name = details[0].name
     msg = Message_Tb.objects.filter(id=id)
     return render(request,'forward.html',{'fwd':msg,'key':my_name})
+
+def important(request,id):
+    Message_Tb.objects.filter(id=id).update(status_reciever='important')
+    return redirect('home')
+
+def view_important(request):
+    my_id = request.session['yourself']
+    details = Register_Tb.objects.filter(id=my_id)
+    my_name = details[0].name
+    my_user_name=details[0].user_name
+    imp_msg=Message_Tb.objects.filter(recipient_id=my_user_name,status_reciever='important')
+    return render(request,'important.html',{'imp':imp_msg,'key':my_name})
+
+def spam(request,id):
+    Message_Tb.objects.filter(id=id).update(status_reciever='spam')
+    # there is a catch here, what if a sender mark his own message from sent messages as spam?
+    # we can take that into account by using if and else, like 'if id == my_id do this, else do that.
+    # in such case status_sender will be equal to 'spam'.
+    # this is applicable for 'important', 'spam' and 'trash'.
+    return redirect('home')
+
+def view_spam(request):
+    my_id = request.session['yourself']
+    details = Register_Tb.objects.filter(id=my_id)
+    my_name = details[0].name
+    my_user_name=details[0].user_name
+    spm_msg=Message_Tb.objects.filter(recipient_id=my_user_name,status_reciever='spam')
+    return render(request,'spam.html',{'spm':spm_msg,'key':my_name})
+
+def trash(request,id):
+    Message_Tb.objects.filter(id=id).update(status_reciever='trash')
+    return redirect('home')
+
+def view_trash(request):
+    my_id = request.session['yourself']
+    details = Register_Tb.objects.filter(id=my_id)
+    my_name = details[0].name
+    my_user_name=details[0].user_name
+    trash_msg=Message_Tb.objects.filter(recipient_id=my_user_name,status_reciever='trash')
+    return render(request,'trash.html',{'trsh':trash_msg,'key':my_name})
+
