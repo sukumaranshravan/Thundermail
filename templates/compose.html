@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block title %} Thundermail: Compose Mail {% endblock %}
+
+{% block content %}
+
+<div class="form-floating">
+    <form action="{% url 'compose_action' %}" method="post" enctype="multipart/form-data" >
+        {% csrf_token %}
+        <table>
+            <tr>
+                <th>To: </th>
+                <td><input type="text" name="recipient" class="form-control" id="to"></td>
+            </tr>
+            <tr>
+                <th>Subject</th>
+                <td><input type="text" class="form-control" name="subject" id="sub"></td>
+            </tr>
+            <tr>
+                <th>Message</th>
+                <td><textarea name="message" class="form-control" id="msg" cols="80" rows="15"></textarea></td>
+            </tr>
+            <tr>
+                <th>File</th>
+                <td><input type="file" name="attachment" class="form-control" id="upload"></td>
+            </tr>
+            <tr>
+                <th></th>
+                <td><button type="submit" class="btn btn-primary w-50">Send</button></td>
+            </tr>
+        </table>  
+    </form>
+</div>
+
+{% endblock %}

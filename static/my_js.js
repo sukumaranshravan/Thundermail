@@ -1,0 +1,1 @@
+sideItem=document.querySelector(".sidebar-content .nav-link")

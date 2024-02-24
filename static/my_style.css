@@ -37,3 +37,9 @@ body {
     border-radius: 20px;
     background-color: transparent;
   }
+.form-group{
+  padding: 10px;
+}
+.tab-row{
+  margin: 10px;
+}
