@@ -48,11 +48,17 @@ def sign_out(request):
     return redirect('start_up')
 
 def compose(request):
-    return render(request,'compose.html')
+    my_id=request.session['yourself']
+    details = Register_Tb.objects.filter(id=my_id)
+    my_name = details[0].name
+    return render(request,'compose.html',{'key':my_name,'see':details})
 
 def compose_action(request):
     sender_id=request.session['yourself']
-    recipient_id=request.POST['recipient'] + "@thundermail.com"
+    if len(request.POST['recipient'])>0:        # this condition is for reply, because when you click reply it automatically takes the whole user id from the database (coded like that.)
+        recipient_id=request.POST['recipient']   
+    else:                                       # this is for compose, where user is only required  to fill the user id only.
+        recipient_id=request.POST['recipient'] + "@thundermail.com"
     subject=request.POST['subject']
     message=request.POST['message']
     file=request.FILES['attachment']
@@ -76,3 +82,18 @@ def read_message(request,id):
     my_name = details[0].name
     message=Message_Tb.objects.filter(id=id)
     return render(request,'read_message.html',{'key':my_name,'see':details,'read':message})
+
+def reply(request,id):
+    reply_to = Register_Tb.objects.filter(id=id)
+    recipient_id=reply_to[0].user_name
+    my_id=request.session['yourself']
+    details = Register_Tb.objects.filter(id=my_id)
+    my_name = details[0].name
+    return render(request,'reply.html',{'do':recipient_id,'key':my_name})
+
+def forward(request,id):
+    my_id=request.session['yourself']
+    details = Register_Tb.objects.filter(id=my_id)
+    my_name = details[0].name
+    msg = Message_Tb.objects.filter(id=id)
+    return render(request,'forward.html',{'fwd':msg,'key':my_name})

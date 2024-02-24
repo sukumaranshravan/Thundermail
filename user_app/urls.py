@@ -12,4 +12,7 @@ urlpatterns = [
     path('compose_action/',views.compose_action,name='compose_action'),
     path('sent_items/',views.sent_items,name='sent_items'),
     path('read_message<int:id>/',views.read_message,name='read_message'),
+    path('reply<int:id>/',views.reply,name='reply'),
+    path('forward<int:id>/',views.forward,name='forward'),
+
 ]

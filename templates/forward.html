@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block title %} Thundermail: Read Message {% endblock %}
+
+{% block content %}
+<div class="form-floating">
+    <form action="{% url 'compose_action' %}" method="post" enctype="multipart/form-data" >
+        {% csrf_token %}
+        {% for i in fwd %}
+        <table>
+            <tr>
+                <th>To: </th>
+                <td><input type="text" name="recipient" class="form-control" id="to"></td>
+            </tr>
+            <tr>
+                <th>Subject</th>
+                <td><input type="text" class="form-control" name="subject" value="{{i.subject}}" id="sub"></td>
+            </tr>
+            <tr>
+                <th>Message</th>
+                <td><textarea name="message" class="form-control" id="msg" cols="80" rows="15">{{i.message}}</textarea></td>
+            </tr>
+            <tr>
+                <th>File</th>
+                <td><input type="hidden" name="attachment" value="{{i.attachment.url}}" class="form-control"></td>
+            </tr>
+            <tr>
+                <th></th>
+                <td><button type="submit" class="btn btn-primary w-50">Send</button></td>
+            </tr>
+        </table> 
+        {% endfor %} 
+    </form>
+</div>
+
+{% endblock %}
