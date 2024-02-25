@@ -28,8 +28,9 @@ def sign_in(request):
         request.session['yourself']=details[0].id
         my_name = details[0].name
         user_name = details[0].user_name
-        messages= Message_Tb.objects.filter(recipient_id=user_name,status_reciever='unread') or Message_Tb.objects.filter(recipient_id=user_name,status_reciever='important')
-        return render(request,'home.html',{'see':details,'key':my_name,'view':messages})
+        messages= Message_Tb.objects.filter(recipient_id=user_name,status_reciever='unread').order_by('-time') or Message_Tb.objects.filter(recipient_id=user_name,status_reciever='important').order_by('-time')
+        block_list=Block_Tb.objects.filter(user_id=request.session['yourself'])
+        return render(request,'home.html',{'see':details,'key':my_name,'view':messages,'blk':block_list})
     else:
         messages.add_message(request,messages.INFO,"User Not Found!")
         return redirect('start_up')
@@ -38,9 +39,10 @@ def home(request):     # home function also takes care of  inbox.
     my_id=request.session['yourself']
     details = Register_Tb.objects.filter(id=my_id)
     user_name=details[0].user_name
-    messages= Message_Tb.objects.filter(recipient_id=user_name,status_reciever='unread') or Message_Tb.objects.filter(recipient_id=user_name,status_reciever='important')
+    messages= Message_Tb.objects.filter(recipient_id=user_name,status_reciever='unread').order_by('-time') or Message_Tb.objects.filter(recipient_id=user_name,status_reciever='important').order_by('-time')
+    block_list=Block_Tb.objects.filter(user_id=my_id)
     my_name = details[0].name
-    return render(request,'home.html',{'key':my_name,'see':details,'view':messages})
+    return render(request,'home.html',{'key':my_name,'see':details,'view':messages,'blk':block_list})
 
 def sign_out(request):
     request.session.flush()
@@ -64,7 +66,11 @@ def compose_action(request):
     file=request.FILES['attachment']
     date=datetime.date.today()
     time=datetime.datetime.now().strftime('%H:%M')
-    send_mail = Message_Tb(sender_id_id=sender_id,recipient_id=recipient_id,subject=subject,message=message,attachment=file,date=date,time=time)
+    block_check = Block_Tb.objects.filter(user_id=recipient_id,blocked_id_id=sender_id)
+    if block_check.count()>0:
+        send_mail = Message_Tb(sender_id_id=sender_id,recipient_id=recipient_id,subject=subject,message=message,attachment=file,date=date,time=time,status_reciever='blocked')
+    else:  
+        send_mail = Message_Tb(sender_id_id=sender_id,recipient_id=recipient_id,subject=subject,message=message,attachment=file,date=date,time=time)
     send_mail.save()
     messages.add_message(request,messages.INFO,"Message sent.")
     return redirect("home")
@@ -99,7 +105,14 @@ def forward(request,id):
     return render(request,'forward.html',{'fwd':msg,'key':my_name})
 
 def important(request,id):
-    Message_Tb.objects.filter(id=id).update(status_reciever='important')
+    my_id= request.session['yourself']
+    details = Register_Tb.objects.filter(id=my_id)
+    my_user_name=details[0].user_name
+    check_imp = Message_Tb.objects.filter(recipient_id=my_user_name,status_reciever='important')
+    if check_imp.count()>0:
+        Message_Tb.objects.filter(id=id).update(status_reciever='unread')
+    else:
+        Message_Tb.objects.filter(id=id).update(status_reciever='important')
     return redirect('home')
 
 def view_important(request):
@@ -111,7 +124,14 @@ def view_important(request):
     return render(request,'important.html',{'imp':imp_msg,'key':my_name})
 
 def spam(request,id):
-    Message_Tb.objects.filter(id=id).update(status_reciever='spam')
+    my_id= request.session['yourself']
+    details = Register_Tb.objects.filter(id=my_id)
+    my_user_name=details[0].user_name
+    check_spam = Message_Tb.objects.filter(recipient_id=my_user_name,status_reciever='spam')
+    if check_spam.count()>0:
+        Message_Tb.objects.filter(id=id).update(status_reciever='unread')
+    else:
+        Message_Tb.objects.filter(id=id).update(status_reciever='spam')
     # there is a catch here, what if a sender mark his own message from sent messages as spam?
     # we can take that into account by using if and else, like 'if id == my_id do this, else do that.
     # in such case status_sender will be equal to 'spam'.
@@ -138,3 +158,14 @@ def view_trash(request):
     trash_msg=Message_Tb.objects.filter(recipient_id=my_user_name,status_reciever='trash')
     return render(request,'trash.html',{'trsh':trash_msg,'key':my_name})
 
+def block_user(request,id):
+    my_id=request.session['yourself']
+    my_details=Register_Tb.objects.filter(id=my_id)
+    my_user_name=my_details[0].user_name
+    check_user=Block_Tb.objects.filter(user_id=my_user_name,blocked_id_id=id)
+    if check_user.count()>0:
+        Block_Tb.objects.filter(user_id=my_user_name,blocked_id_id=id).delete()
+    else:
+        add_block=Block_Tb(user_id=my_user_name,blocked_id_id=id)
+        add_block.save()
+    return redirect('home')

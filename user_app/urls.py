@@ -20,5 +20,5 @@ urlpatterns = [
     path('view_spam/',views.view_spam,name='view_spam'),
     path('trash<int:id>/',views.trash,name='trash'),
     path('view_trash/',views.view_trash,name='view_trash'),
-    
+    path('block_user<int:id>/',views.block_user,name='block_user'),
 ]

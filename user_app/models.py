@@ -21,5 +21,6 @@ class Message_Tb(models.Model):
     status_sender=models.CharField(max_length=20,default='none')
 
 class Block_Tb(models.Model):
-    user_id=models.ForeignKey(Register_Tb,on_delete=models.CASCADE)
-    blocked_id=models.CharField(max_length=20)
+    user_id=models.CharField(max_length=20,default=0)
+    blocked_id=models.ForeignKey(Register_Tb,on_delete=models.CASCADE,default=0)
+
